@@ -5,7 +5,7 @@ import requests
 import logging
 from datetime import datetime
 from flask import Flask, request, jsonify, session, redirect, url_for
-from login_required import login_required
+from api.login_required import login_required
 from phone_validation import IPQS
 import json
 from pymongo_get_database import get_database
