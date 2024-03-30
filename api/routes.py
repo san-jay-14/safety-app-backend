@@ -19,6 +19,9 @@ load_dotenv()
 app.secret_key = os.getenv("APP_SECRET_KEY")
 
 
+
+
+
 dbname = get_database()
 users_collection = dbname["user"]
 
@@ -273,6 +276,30 @@ def feedback():
         return jsonify({'error': 'Error while updating database'}), 400
 
     return jsonify({'message': 'Feedback submitted successfully'}), 200
+
+#Endpoint to check crypto wallet address
+chainabuse_api_key = os.getenv("CRYPTO_API_KEY")  # Chainabuse API key
+@app.route('/verify_address', methods=['POST'])
+def verify_address():
+    data = request.json
+    address = data.get('wallet_address')
+    user_id = session['user_id']
+    url = "https://api.chainabuse.com/v0/reports?includePrivate=false&page=1&perPage=50"
+
+    headers = {"accept": "application/json"}
+
+    response = requests.get(url, headers=headers)
+
+    if response.text.safe_address:    
+        users_collection.update_one({'user_id': user_id}, {'$push': {'feedback': {
+            'feedback_id': str(uuid.uuid4()),
+            'feedback': feedback,
+            'created_at': datetime.now()
+        }}})
+        return jsonify({'message': 'Safe Address'}), 200
+    else:
+        return jsonify({'message': 'Malicious Address'}), 200
+
 
 
 if __name__ == '__main__':
